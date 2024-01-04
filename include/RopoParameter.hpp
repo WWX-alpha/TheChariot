@@ -3,6 +3,7 @@
 
 #include "pros/motors.hpp"
 #include "RopoMath/Misc.hpp"
+#include "Regulator.hpp"
 
 namespace RopoParameter {
 	// Chassis Motor Parameter
@@ -25,6 +26,7 @@ namespace RopoParameter {
 	static constexpr int ELEVATE_MOTOR_PORT[] 		= {19};
 	static constexpr int FLY_WHEEL_MOTOR_PORT[] 	= {18};
 	static constexpr int TURRET_IMU_PORT[] 			= {11};
+	static constexpr int DEBUGGER_PORT[] 			= {8};
 
 	// Chassis Shape Parameter
 	static constexpr float CHASSIS_WHEEL_ANGLE 		= (float)RopoMath::Pi / 3.0; 		// (rad)
@@ -53,6 +55,12 @@ namespace RopoParameter {
 
 	// Three Wire
 	static constexpr char ShootPneumaticPort  = 'A';
+
+	static constexpr float Ku = 100.0f;
+	static constexpr float Tu = 0.215f;
+	RopoControl::PIDRegulator FlywheelRegulator	(Ku, 0, 0 , 12000,-12000);
+	// RopoControl::PIDRegulator FlywheelRegulator	(0.33 * Ku, 0.66*Ku/Tu, 0.11*Ku*Tu , 12000,-12000);
+	// RopoControl::PIDRegulator FlywheelRegulator	(0.27, 4, 0 , 12000,-12000);
 };
 
 #endif // ROPO_PARAMETER_HPP

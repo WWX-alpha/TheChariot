@@ -10,6 +10,7 @@
 #include "RopoController.hpp"
 #include "RopoFlyWheel.hpp"
 #include "Regulator.hpp"
+#include "Roposensor/Header.hpp"
 
 namespace RopoDevice {
 	// Controller
@@ -59,11 +60,13 @@ namespace RopoDevice {
 												elevateMotor0,
 												RopoParameter::TURRET_RANGE);
 
-	static RopoFlyWheel::FlyWheel flyWheel(flyWheelMotor0);
+	static RopoFlyWheel::FlyWheel flyWheel(flyWheelMotor0, &RopoParameter::FlywheelRegulator);
 
 	pros::IMU turretImu(RopoParameter::TURRET_IMU_PORT[0]);
 	
 	pros::ADIDigitalOut ShootPneumatic(RopoParameter::ShootPneumaticPort,false);
+
+	RopoSensor::Debugger Debugger(RopoParameter::DEBUGGER_PORT[0],115200);
 
 	void DeviceInit()
 	{
@@ -71,8 +74,6 @@ namespace RopoDevice {
 		RopoDevice::elevateMotor0.set_brake_mode(RopoParameter::ELEVATE_MOTOR_MODE);
 		RopoDevice::directMotor0.set_encoder_units(RopoParameter::DIRECT_MOTOR_ENCODER);
 		RopoDevice::elevateMotor0.set_encoder_units(RopoParameter::ELEVATE_MOTOR_ENCODER);
-
-		RopoDevice::flyWheel.MoveVelocity(RopoParameter::initFlyWheelSpeed, RopoParameter::initFlyWheelMode);
 	}
 }
 

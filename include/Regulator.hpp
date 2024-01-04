@@ -52,39 +52,29 @@ namespace RopoControl{
             float Kp,Ki,Kd;
             float OutputLimitHigh;
             float OutputLimitLow;
-            float ErrorTol;
-            float JumpTime;
             bool First;
         public:
-            PIDRegulator(float _Kp,float _Ki,float _Kd,float _OutputLimitHigh,float _OutputLimitLow,float _ErrorTol,float _JumpTime = 0.05):
-                Kp(_Kp),Ki(_Ki),Kd(_Kd),OutputLimitHigh(_OutputLimitHigh),OutputLimitLow(_OutputLimitLow),ErrorTol(_ErrorTol),JumpTime(_JumpTime),First(true){}
+            PIDRegulator(float _Kp,float _Ki,float _Kd,float _OutputLimitHigh,float _OutputLimitLow):
+                Kp(_Kp),Ki(_Ki),Kd(_Kd),OutputLimitHigh(_OutputLimitHigh),OutputLimitLow(_OutputLimitLow),First(true){}
             virtual float Update(float Error){
                 static float PreError;
                 static float IntError;
                 static float DevError;
                 static float Time;
-                static float ArrivedTime;
                 if(First){
                     PreError = Error;
                     IntError = 0;
                     Time = GetSystemTimeInSec();
                     First = false;
-                    ArrivedTime = -1;
                 }
-                IntError += Error * ( GetSystemTimeInSec() - Time );
-                if(IntError * Error < 0.0)
-                    IntError = 0;
-                Time = GetSystemTimeInSec();
-                DevError = Error - PreError;
+                IntError += Error * (GetSystemTimeInSec() - Time);
+                DevError = (Error - PreError) / (GetSystemTimeInSec() - Time);
+
                 PreError = Error;
-                if( fabs(Error) < ErrorTol ){
-                    if(ArrivedTime < 0.0) 
-                        ArrivedTime = GetSystemTimeInSec();
-                    else if(GetSystemTimeInSec() - ArrivedTime > JumpTime)
-                        Arrived = true;
-                }
-                else ArrivedTime = -1 , Arrived = false;
-                return Arrived?0:Limit( Kp * Error + Ki * IntError + Kd * DevError , OutputLimitHigh, OutputLimitLow) ;
+
+                Time = GetSystemTimeInSec();
+
+                return Limit((Kp * Error + Ki * IntError + Kd * DevError) , OutputLimitHigh, OutputLimitLow);
             }
             virtual void Reset(){First = true,Arrived = false;}
     };

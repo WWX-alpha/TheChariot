@@ -18,22 +18,21 @@ bool flyWheelMode = RopoParameter::initFlyWheelMode;
 
 void FlywheelValueUp()
 {
-	FlyWheelSpeed += RopoParameter::DeltaFlywheelVelocity;
-	if(FlyWheelSpeed >= RopoParameter::maxFlyWheelSpeed)
+	RopoDevice::flyWheel.targetVelocity += RopoParameter::DeltaFlywheelVelocity;
+	if(RopoDevice::flyWheel.targetVelocity >= RopoParameter::maxFlyWheelSpeed)
 	{
-		FlyWheelSpeed = RopoParameter::maxFlyWheelSpeed;
+		RopoDevice::flyWheel.targetVelocity = RopoParameter::maxFlyWheelSpeed;
 	}
-	RopoDevice::flyWheel.MoveVelocity(FlyWheelSpeed, flyWheelMode);
+
 }
 
 void FlywheelValueDown()
 {
-	FlyWheelSpeed -= RopoParameter::DeltaFlywheelVelocity;
-	if(FlyWheelSpeed <= RopoParameter::minFlyWheelSpeed)
+	RopoDevice::flyWheel.targetVelocity -= RopoParameter::DeltaFlywheelVelocity;
+	if(RopoDevice::flyWheel.targetVelocity <= RopoParameter::minFlyWheelSpeed)
 	{
-		FlyWheelSpeed = RopoParameter::minFlyWheelSpeed;
+		RopoDevice::flyWheel.targetVelocity = RopoParameter::minFlyWheelSpeed;
 	}
-	RopoDevice::flyWheel.MoveVelocity(FlyWheelSpeed, flyWheelMode);
 }
 
 void FlywheelShoot()
@@ -45,8 +44,7 @@ void FlywheelShoot()
 
 void FlywheelSwitch()
 {
-	flyWheelMode ^= 1;
-	RopoDevice::flyWheel.MoveVelocity(FlyWheelSpeed, flyWheelMode);
+	RopoDevice::flyWheel.flyWheelMode ^= 1;
 }
 
 void opcontrol() {
@@ -74,6 +72,8 @@ void opcontrol() {
 	ButtonDetectLine2.AddButtonDetect(pros::E_CONTROLLER_DIGITAL_X , RopoController::DoubleClick, FlywheelSwitch);
 	ButtonDetectLine2.Enable();
 
+	okapi::EKFFilter vFilter(0.001, 0.04);
+
 	while (true) {
 		xInput =   xVelocityInput.GetAxisValue();
 		yInput = - yVelocityInput.GetAxisValue();
@@ -94,6 +94,11 @@ void opcontrol() {
 		RopoDevice::turretModule.MoveVelocity(turretVelocity);
 
 		pros::lcd::print(1,"%.1f %.1f %.1f %.1f %.1f",xInput,yInput,wInput,dInput,eInput);
+
+		RopoDevice::Debugger.Print("%.1f,%.1f,%.1f\r\n",
+									RopoDevice::flyWheel.targetVelocity, 
+									RopoDevice::flyWheel.currentVelocity, 
+									RopoDevice::flyWheel.SumVoltage / 10.0f);
 		
 		pros::delay(10);
 	}
