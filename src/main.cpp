@@ -74,7 +74,8 @@ void opcontrol() {
 
 	okapi::EKFFilter vFilter(0.001, 0.04);
 
-	while (true) {
+	while (true)
+	{
 		xInput =   xVelocityInput.GetAxisValue();
 		yInput = - yVelocityInput.GetAxisValue();
 		wInput = - wVelocityInput.GetAxisValue();
@@ -98,8 +99,8 @@ void opcontrol() {
 		RopoDevice::Debugger.Print("%.1f,%.1f,%.1f\r\n",
 									RopoDevice::flyWheel.targetVelocity, 
 									RopoDevice::flyWheel.currentVelocity, 
-									RopoDevice::flyWheel.SumVoltage / 10.0f);
-		
+									RopoDevice::flyWheel.SumVoltage);
+
 		pros::delay(10);
 	}
 }

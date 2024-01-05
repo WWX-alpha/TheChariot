@@ -4,7 +4,7 @@
 #include "RopoParameter.hpp"
 #include "RopoMath/Misc.hpp"
 #include "pros/motors.hpp"
-#include "Regulator.hpp"
+#include "RopoControl/Header.hpp"
 #include "Roposensor/Header.hpp"
 #include "okapi/api/filter/ekfFilter.hpp"
 
@@ -30,26 +30,14 @@ namespace RopoFlyWheel {
 		float SumVoltage;
 		bool flyWheelMode;
 
-		// virtual void MoveVelocity(float inputVelocity, bool inputMode)
-		// {
-		// 	float omega = 0;
-		// 	targetVelocity = inputVelocity;
-		// 	flyWheelMode = inputMode;
-
-		// 	if(flyWheelMode)
-		// 	{
-		// 		omega = targetVelocity / 6;
-		// 	}
-		// 	FlywheelMotor.move_velocity(omega);
-		// 	pros::lcd::print(2,"FW:%.1f %.1f %0.1f",targetVelocity, omega, (float)flyWheelMode);
-		// }
+		// RopoControl::Identifier identifier = RopoControl::Identifier(10 * 1000, 0.5f, 10.0f, 12000.0f);
 
 	protected:
 		pros::Motor& FlywheelMotor;
 		RopoControl::Regulator *FlywheelRegulator;
 		pros::Task *BackgroundTask;
 		float (*GetFlywheelVelocity)(void);
-		okapi::EKFFilter vFilter = okapi::EKFFilter(0.001);
+		okapi::EKFFilter vFilter = okapi::EKFFilter(0.001, 0.04);
 
 		static void BackgroundTaskFunction(void *Parameter)
 		{
@@ -58,7 +46,7 @@ namespace RopoFlyWheel {
 			while(true)
 			{
 				This->vFilter.filter(This->FlywheelMotor.get_actual_velocity() * 6);
-				This->currentVelocity = This->vFilter.getOutput() ;
+				This->currentVelocity = This->vFilter.getOutput();
 
 				if(This->GetFlywheelVelocity != nullptr)
 				{
@@ -69,15 +57,7 @@ namespace RopoFlyWheel {
 					if(This->flyWheelMode)
 					{
 						This->SumVoltage = This->FlywheelRegulator->Update(This->targetVelocity - This->currentVelocity);
-
-						if(This->SumVoltage > 12000)
-						{
-							This->SumVoltage = 12000;
-						}
-						else if (This->SumVoltage < -12000)
-						{
-							This->SumVoltage = -12000;
-						}
+						// This->SumVoltage = This->identifier.sweepOutput();
 
 						This->FlywheelMotor.move_voltage(This->SumVoltage);
 

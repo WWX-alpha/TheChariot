@@ -3,7 +3,7 @@
 
 #include "pros/motors.hpp"
 #include "RopoMath/Misc.hpp"
-#include "Regulator.hpp"
+#include "RopoControl/Header.hpp"
 
 namespace RopoParameter {
 	// Chassis Motor Parameter
@@ -56,9 +56,10 @@ namespace RopoParameter {
 	// Three Wire
 	static constexpr char ShootPneumaticPort  = 'A';
 
-	static constexpr float Ku = 100.0f;
+	static constexpr float Ku = 120.0f;
 	static constexpr float Tu = 0.215f;
-	RopoControl::PIDRegulator FlywheelRegulator	(Ku, 0, 0 , 12000,-12000);
+	// RopoControl::PIDRegulator FlywheelRegulator	(Ku, 0, 0 , 12000,-12000);
+	RopoControl::antiWindblowPIRegulator FlywheelRegulator(0.25f, 5.0f, 5.0f, 12000,-12000);
 	// RopoControl::PIDRegulator FlywheelRegulator	(0.33 * Ku, 0.66*Ku/Tu, 0.11*Ku*Tu , 12000,-12000);
 	// RopoControl::PIDRegulator FlywheelRegulator	(0.27, 4, 0 , 12000,-12000);
 };

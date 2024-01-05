@@ -9,7 +9,7 @@
 #include "RopoTurret.hpp"
 #include "RopoController.hpp"
 #include "RopoFlyWheel.hpp"
-#include "Regulator.hpp"
+#include "RopoControl/Header.hpp"
 #include "Roposensor/Header.hpp"
 
 namespace RopoDevice {

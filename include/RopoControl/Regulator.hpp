@@ -78,6 +78,46 @@ namespace RopoControl{
             }
             virtual void Reset(){First = true,Arrived = false;}
     };
+
+    class antiWindblowPIRegulator : public Regulator
+    {
+        protected:
+            float Kp,Ki,Kc;
+            float OutputLimitHigh;
+            float OutputLimitLow;
+            bool First;
+        public:
+            antiWindblowPIRegulator(float _Kp,float _Ki,float _Kc,float _OutputLimitHigh,float _OutputLimitLow):
+                Kp(_Kp),
+                Ki(_Ki),
+                Kc(_Kc),
+                OutputLimitHigh(_OutputLimitHigh),
+                OutputLimitLow(_OutputLimitLow),
+                First(true){}
+            virtual float Update(float Error){
+                static float Sum;
+                static float Output;
+                static float Exc;
+                static float Time;
+                if(First){
+                    Sum = 0;
+                    First = false;
+                    Output = 0;
+
+                    Time = GetSystemTimeInSec();
+                }
+                float U = Sum + Kp * Error;
+
+                Output = Limit(U, OutputLimitHigh, OutputLimitLow);
+
+                Exc = U - Output;
+                Sum = Sum + (Ki * Error - Kc * Exc )* (GetSystemTimeInSec() - Time);
+
+                Time = GetSystemTimeInSec();
+                return Output;
+            }
+            virtual void Reset(){First = true,Arrived = false;}
+    };
 };
 
 #endif // REGULATOR_HPP
