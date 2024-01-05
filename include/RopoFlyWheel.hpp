@@ -13,14 +13,14 @@ namespace RopoFlyWheel {
 	public:
 		FlyWheel(pros::Motor &mtr0,
 				RopoControl::Regulator *_FlywheelRegulator = nullptr,
-				float (*_GetFlywheelVelocity)(void) = nullptr)
-		: FlywheelMotor(mtr0) ,
-		FlywheelRegulator(_FlywheelRegulator),
-		GetFlywheelVelocity(_GetFlywheelVelocity),
-		flyWheelMode(RopoParameter::initFlyWheelMode),
-		currentVelocity(0.0f),
-		targetVelocity(RopoParameter::initFlyWheelSpeed),
-		SumVoltage(0.0f)
+				float (*_GetFlywheelVelocity)(void) = nullptr): 
+					FlywheelMotor(mtr0) ,
+					FlywheelRegulator(_FlywheelRegulator),
+					GetFlywheelVelocity(_GetFlywheelVelocity),
+					flyWheelMode(RopoParameter::initFlyWheelMode),
+					currentVelocity(0.0f),
+					targetVelocity(RopoParameter::initFlyWheelSpeed),
+					SumVoltage(0.0f)
 		{ 
 			BackgroundTask = new pros::Task(BackgroundTaskFunction,this);
 		}
@@ -34,9 +34,11 @@ namespace RopoFlyWheel {
 
 	protected:
 		pros::Motor& FlywheelMotor;
+
 		RopoControl::Regulator *FlywheelRegulator;
 		pros::Task *BackgroundTask;
 		float (*GetFlywheelVelocity)(void);
+		
 		okapi::EKFFilter vFilter = okapi::EKFFilter(0.001, 0.04);
 
 		static void BackgroundTaskFunction(void *Parameter)
@@ -62,7 +64,7 @@ namespace RopoFlyWheel {
 						This->FlywheelMotor.move_voltage(This->SumVoltage);
 
 						// std::cout << " " << This->targetVelocity << " " << currentVelocity << std::endl;
-						pros::lcd::print(2,"FW:%.1f %.1f %.0f %.1f",This->targetVelocity, This->currentVelocity, (float)This->flyWheelMode, This->SumVoltage);
+						// pros::lcd::print(2,"FW:%.1f %.1f %.0f %.1f",This->targetVelocity, This->currentVelocity, (float)This->flyWheelMode, This->SumVoltage);
 					}
 					else 
 					{

@@ -46,6 +46,8 @@ namespace RopoDevice {
 	static pros::Motor flyWheelMotor0(RopoParameter::FLY_WHEEL_MOTOR_PORT[0],
 										RopoParameter::FLY_WHEEL_MOTOR_GEARSET, false);
 
+	static pros::IMU turretImu(RopoParameter::TURRET_IMU_PORT[0]);
+
 	static RopoWheelModule::WheelModule leftFrontMotorModule(leftFrontMotor0, leftFrontMotor1);
 	static RopoWheelModule::WheelModule leftBackMotorModule(leftBackMotor0, leftBackMotor1);
 	static RopoWheelModule::WheelModule rightBackMotorModule(rightBackMotor0, rightBackMotor1);
@@ -58,15 +60,17 @@ namespace RopoDevice {
 
 	static RopoTurret::TurretModule turretModule(directMotor0,
 												elevateMotor0,
-												RopoParameter::TURRET_RANGE);
+												RopoParameter::TURRET_RANGE,
+												turretImu,
+												&RopoParameter::ElevateRegulator,
+												&RopoParameter::DirectRegulator);
 
 	static RopoFlyWheel::FlyWheel flyWheel(flyWheelMotor0, &RopoParameter::FlywheelRegulator);
 
-	pros::IMU turretImu(RopoParameter::TURRET_IMU_PORT[0]);
 	
-	pros::ADIDigitalOut ShootPneumatic(RopoParameter::ShootPneumaticPort,false);
+	static pros::ADIDigitalOut ShootPneumatic(RopoParameter::ShootPneumaticPort,false);
 
-	RopoSensor::Debugger Debugger(RopoParameter::DEBUGGER_PORT[0],115200);
+	// static RopoSensor::Debugger Debugger(RopoParameter::DEBUGGER_PORT[0],115200);
 
 	void DeviceInit()
 	{
@@ -74,6 +78,8 @@ namespace RopoDevice {
 		RopoDevice::elevateMotor0.set_brake_mode(RopoParameter::ELEVATE_MOTOR_MODE);
 		RopoDevice::directMotor0.set_encoder_units(RopoParameter::DIRECT_MOTOR_ENCODER);
 		RopoDevice::elevateMotor0.set_encoder_units(RopoParameter::ELEVATE_MOTOR_ENCODER);
+
+		RopoDevice::turretImu.tare();
 	}
 }
 

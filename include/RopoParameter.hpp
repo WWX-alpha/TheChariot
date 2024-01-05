@@ -23,7 +23,7 @@ namespace RopoParameter {
 	static constexpr int RIGHT_BACK_MOTOR_PORT[] 	= {10, 9};
 	static constexpr int RIGHT_FRONT_MOTOR_PORT[] 	= {7, 6};
 	static constexpr int DIRECT_MOTOR_PORT[] 		= {16};
-	static constexpr int ELEVATE_MOTOR_PORT[] 		= {19};
+	static constexpr int ELEVATE_MOTOR_PORT[] 		= {12};
 	static constexpr int FLY_WHEEL_MOTOR_PORT[] 	= {18};
 	static constexpr int TURRET_IMU_PORT[] 			= {11};
 	static constexpr int DEBUGGER_PORT[] 			= {8};
@@ -43,8 +43,11 @@ namespace RopoParameter {
 	static constexpr float CHASSIS_Y_SCALE 			= 1.4f;								//(m/s)
 	static constexpr float CHASSIS_W_SCALE 			= 8.0f;
 
-	static constexpr float DIRECT_SCALE 			= 150.0f;							//(deg/s)
-	static constexpr float ELEVATE_SCALE 			= 60.0f;							//(deg/s)
+	// static constexpr float DIRECT_SCALE 			= 150.0f;							//(deg/s)
+	// static constexpr float ELEVATE_SCALE 			= 60.0f;							//(deg/s)
+
+	static constexpr float DIRECT_SCALE 			= 12000.0f;							//(deg/s)
+	static constexpr float ELEVATE_SCALE 			= 12000.0f;							//(deg/s)
 
 	static constexpr float DeltaFlywheelVelocity 	= 200.0f;
 	static constexpr float initFlyWheelSpeed 		= 1800.0f;
@@ -56,12 +59,10 @@ namespace RopoParameter {
 	// Three Wire
 	static constexpr char ShootPneumaticPort  = 'A';
 
-	static constexpr float Ku = 120.0f;
-	static constexpr float Tu = 0.215f;
-	// RopoControl::PIDRegulator FlywheelRegulator	(Ku, 0, 0 , 12000,-12000);
 	RopoControl::antiWindblowPIRegulator FlywheelRegulator(0.25f, 5.0f, 5.0f, 12000,-12000);
-	// RopoControl::PIDRegulator FlywheelRegulator	(0.33 * Ku, 0.66*Ku/Tu, 0.11*Ku*Tu , 12000,-12000);
-	// RopoControl::PIDRegulator FlywheelRegulator	(0.27, 4, 0 , 12000,-12000);
+	RopoControl::PRegulator ElevateRegulator(750.0f, 12000, -12000);
+	// RopoControl::PRegulator DirectRegulator(100.0f, 12000, -12000);
+	RopoControl::antiWindblowPIRegulator DirectRegulator(300.0f, 50.0f, 50.0f, 12000,-12000);
 };
 
 #endif // ROPO_PARAMETER_HPP

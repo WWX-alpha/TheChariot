@@ -13,8 +13,40 @@ namespace RopoTurret {
 
 		float mode = 0.0f;
 
-		TurretModule(pros::Motor &mtr0, pros::Motor &mtr1, const float* Range)
-		: directMotor(mtr0), elevateMotor(mtr1), turretRange{Range[0], Range[1], Range[2], Range[3]} { }
+		bool elevateStableFlag = false;
+		bool directStableFlag = false;
+
+		float elevateVoltage = 0.0f;
+		float directVoltage = 0.0f;
+
+		float currentElecvateAngle;
+		float targetElecvateAngle;
+
+		float currentDirectAngle;
+		float targetDirectAngle;
+
+		// TurretModule(pros::Motor &mtr0, pros::Motor &mtr1, const float* Range): 
+		// directMotor(mtr0), elevateMotor(mtr1), turretRange{Range[0], Range[1], Range[2], Range[3]}{ }
+
+		TurretModule(pros::Motor &mtr0, 
+					pros::Motor &mtr1, 
+					const float* Range, 
+					pros::Imu &imu0, 
+					RopoControl::Regulator *_elevateRegulator = nullptr,
+					RopoControl::Regulator *_directRegulator = nullptr): 
+			directMotor	(mtr0),
+			elevateMotor(mtr1),
+			turretRange{Range[0], Range[1], Range[2], Range[3]},
+			turretImu	(imu0),
+			currentElecvateAngle(0.0f),
+			targetElecvateAngle	(0.0f),
+			currentDirectAngle	(0.0f),
+			targetDirectAngle	(0.0f),
+			elevateRegulator(_elevateRegulator), 
+			directRegulator	(_directRegulator)
+		{
+			BackgroundTask = new pros::Task(BackgroundTaskFunction,this); 
+		}
 
 		virtual void MoveVelocity(RopoMath::Vector<float> velocity)
 		{
@@ -41,10 +73,25 @@ namespace RopoTurret {
 			
 			directMotor .move_velocity(directOmega);
 			elevateMotor.move_velocity(elevateOmega);
+		}
 
-            pros::lcd::print(3,"TR:%.1f %.1f",directOmega, elevateOmega);
-			pros::lcd::print(4,"%.1f %.1f",directPos, elevatePos);
-			pros::lcd::print(5,"%.1f",mode);
+		virtual void MoveVoltage(RopoMath::Vector<float> voltage)
+		{
+			directVoltage = ((voltage[1] < 0 && directPos >= turretRange[0]) || (voltage[1] > 0 && directPos <= turretRange[1]))?(voltage[1]):(0);
+			elevateVoltage = ((voltage[2] < 0 && elevatePos >= turretRange[2]) || (voltage[2] > 0 && elevatePos <= turretRange[3]))?(voltage[2]):(0);
+
+			if(elevatePos <= turretRange[2])
+			{
+				elevateVoltage = 3000.0f;
+				mode = 1.0f;
+			}
+			else if(elevatePos >= turretRange[3])
+			{
+				elevateVoltage = -3000.0f;
+				mode = 2.0f;
+			}
+			directMotor .move_voltage(directVoltage);
+			elevateMotor.move_voltage(elevateVoltage);
 		}
 
 		virtual void Update()
@@ -69,12 +116,79 @@ namespace RopoTurret {
 			{
 				turretRange[2] = -25.0f;
 			}
+
+			currentElecvateAngle = turretImu.get_pitch();
+			currentDirectAngle = turretImu.get_yaw();
 		}
 
-	private:
 		pros::Motor& directMotor;
 		pros::Motor& elevateMotor;
+
+	protected:
+		pros::Imu& turretImu;
+
 		std::vector<float> turretRange;
+
+		RopoControl::Regulator *elevateRegulator;
+		RopoControl::Regulator *directRegulator;
+		pros::Task *BackgroundTask;
+
+		static void BackgroundTaskFunction(void *Parameter)
+		{
+			if(Parameter == nullptr)return;
+			TurretModule *This = static_cast<TurretModule *>(Parameter);
+
+			RopoMath::Vector<float> voltage(RopoMath::ColumnVector, 2);
+			voltage[1] = 0.0f;
+			voltage[2] = 0.0f;
+			while(true)
+			{
+				This->Update();
+
+				if(This->elevateRegulator != nullptr)
+				{
+					if(This->elevateStableFlag)
+					{
+						This->elevateVoltage = This->elevateRegulator->Update(This->targetElecvateAngle -This->currentElecvateAngle);
+						// This->elevateMotor.move_voltage(This->elevateVoltage);
+						voltage[2] = This->elevateVoltage;
+					}
+					else 
+					{
+						This->targetElecvateAngle = This->turretImu.get_pitch();
+					}
+				}
+				else 
+				{
+					This->targetElecvateAngle = This->turretImu.get_pitch();
+				}
+
+				if(This->directRegulator != nullptr)
+				{
+					if(This->directStableFlag)
+					{
+						This->directVoltage = This->directRegulator->Update(This->targetDirectAngle -This->currentDirectAngle);
+						// This->directMotor.move_voltage(-This->directVoltage);
+						voltage[1] = -This->directVoltage;
+					}
+					else 
+					{
+						This->targetDirectAngle = This->turretImu.get_yaw();
+					}
+				}
+				else 
+				{
+					This->targetDirectAngle = This->turretImu.get_yaw();
+				}
+
+				if(This->directStableFlag || This->elevateStableFlag)
+				{
+					This->MoveVoltage(voltage);
+				}
+				
+				pros::delay(5);
+			}
+		}
 	};
 }
 

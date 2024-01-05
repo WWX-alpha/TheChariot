@@ -36,11 +36,11 @@ namespace RopoControl{
             float OutputLimitLow;
             float ErrorTol;
         public:
-            PRegulator(float _Kp,float _OutputLimitHigh,float _OutputLimitLow,float _ErrorTol):
-                Kp(_Kp),OutputLimitHigh(_OutputLimitHigh),OutputLimitLow(_OutputLimitLow),ErrorTol(_ErrorTol){}
-            virtual float Update(float Error){
-                if(Error < ErrorTol)Arrived = true;
-                else Arrived = false;
+            PRegulator(float _Kp,float _OutputLimitHigh,float _OutputLimitLow):
+                Kp(_Kp),OutputLimitHigh(_OutputLimitHigh),OutputLimitLow(_OutputLimitLow){}
+            
+            virtual float Update(float Error)
+            {
                 return Limit( Error * Kp, OutputLimitHigh, OutputLimitLow );
             }
             virtual void Reset(){Arrived = false;}
