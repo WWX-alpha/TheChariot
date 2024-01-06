@@ -70,7 +70,7 @@ namespace RopoDevice {
 	
 	static pros::ADIDigitalOut ShootPneumatic(RopoParameter::ShootPneumaticPort,false);
 
-	// static RopoSensor::Debugger Debugger(RopoParameter::DEBUGGER_PORT[0],115200);
+	static RopoSensor::Debugger Debugger(RopoParameter::DEBUGGER_PORT[0],115200);
 
 	void DeviceInit()
 	{

@@ -61,8 +61,9 @@ namespace RopoParameter {
 
 	RopoControl::antiWindblowPIRegulator FlywheelRegulator(0.25f, 5.0f, 5.0f, 12000,-12000);
 	RopoControl::PRegulator ElevateRegulator(750.0f, 12000, -12000);
-	// RopoControl::PRegulator DirectRegulator(100.0f, 12000, -12000);
+
 	RopoControl::antiWindblowPIRegulator DirectRegulator(300.0f, 50.0f, 50.0f, 12000,-12000);
+	// RopoControl::PIDRegulator DirectRegulator(300.0f, 0.0f, 0.0f, 12000,-12000);
 };
 
 #endif // ROPO_PARAMETER_HPP

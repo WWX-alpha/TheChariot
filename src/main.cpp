@@ -129,10 +129,10 @@ void opcontrol() {
 		// 							RopoDevice::turretModule.currentElecvateAngle, 
 		// 							RopoDevice::turretModule.elevateVoltage);
 
-		// RopoDevice::Debugger.Print("%.1f,%.1f,%.1f\r\n",
-		// 							RopoDevice::turretModule.targetDirectAngle * 400,
-		// 							RopoDevice::turretModule.currentDirectAngle * 400, 
-		// 							RopoDevice::turretModule.directVoltage);
+		RopoDevice::Debugger.Print("%.1f,%.1f,%.1f\r\n",
+									RopoDevice::turretModule.targetDirectAngle * 400,
+									RopoDevice::turretModule.currentDirectAngle * 400, 
+									RopoDevice::turretModule.directVoltage);
 
 		pros::delay(10);
 	}

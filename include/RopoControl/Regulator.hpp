@@ -53,14 +53,14 @@ namespace RopoControl{
             float OutputLimitHigh;
             float OutputLimitLow;
             bool First;
+            float PreError;
+            float IntError;
+            float DevError;
+            float Time;
         public:
             PIDRegulator(float _Kp,float _Ki,float _Kd,float _OutputLimitHigh,float _OutputLimitLow):
                 Kp(_Kp),Ki(_Ki),Kd(_Kd),OutputLimitHigh(_OutputLimitHigh),OutputLimitLow(_OutputLimitLow),First(true){}
             virtual float Update(float Error){
-                static float PreError;
-                static float IntError;
-                static float DevError;
-                static float Time;
                 if(First){
                     PreError = Error;
                     IntError = 0;
@@ -86,6 +86,10 @@ namespace RopoControl{
             float OutputLimitHigh;
             float OutputLimitLow;
             bool First;
+            float Sum;
+            float Output;
+            float Exc;
+            float Time;
         public:
             antiWindblowPIRegulator(float _Kp,float _Ki,float _Kc,float _OutputLimitHigh,float _OutputLimitLow):
                 Kp(_Kp),
@@ -94,11 +98,8 @@ namespace RopoControl{
                 OutputLimitHigh(_OutputLimitHigh),
                 OutputLimitLow(_OutputLimitLow),
                 First(true){}
-            virtual float Update(float Error){
-                static float Sum;
-                static float Output;
-                static float Exc;
-                static float Time;
+            virtual float Update(float Error)
+            {
                 if(First){
                     Sum = 0;
                     First = false;
