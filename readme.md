@@ -1,0 +1,20 @@
+# 底盘运动学
+$$
+  \begin{bmatrix}
+    v_{1}\\
+    v_{2}\\
+    v_{3}\\
+    v_{4}\\
+  \end{bmatrix}=
+  \begin{bmatrix}
+    -1/sin\theta&1/cos\theta&L\\
+    -1/sin\theta&-1/cos\theta&L\\
+    1/sin\theta&-1/cos\theta&L\\
+    1/sin\theta&1/cos\theta&L\\
+  \end{bmatrix}
+  \begin{bmatrix}
+    \dot{x}\\
+    \dot{y}\\
+    \dot{\theta}\\
+  \end{bmatrix}
+$$

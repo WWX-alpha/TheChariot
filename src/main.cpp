@@ -72,6 +72,12 @@ void opcontrol() {
 
 	RopoController::ButtonTaskLine ButtonDetectLine1(RopoDevice::masterController);
 	RopoDevice::masterController.clear();
+	ButtonDetectLine1.AddButtonDetect(pros::E_CONTROLLER_DIGITAL_L1 , RopoController::Rising, FlywheelValueUp);
+	ButtonDetectLine1.AddButtonDetect(pros::E_CONTROLLER_DIGITAL_L2 , RopoController::Rising, FlywheelValueDown);
+	ButtonDetectLine1.AddButtonDetect(pros::E_CONTROLLER_DIGITAL_R1 , RopoController::Rising, FlywheelShoot);
+	ButtonDetectLine1.AddButtonDetect(pros::E_CONTROLLER_DIGITAL_X , RopoController::DoubleClick, FlywheelSwitch);
+	ButtonDetectLine1.AddButtonDetect(pros::E_CONTROLLER_DIGITAL_A , RopoController::DoubleClick, ElevateStableSwitch);
+	ButtonDetectLine1.AddButtonDetect(pros::E_CONTROLLER_DIGITAL_B , RopoController::DoubleClick, DirectStableSwitch);
 	ButtonDetectLine1.Enable();
 
 	RopoController::ButtonTaskLine ButtonDetectLine2(RopoDevice::partnerController);
@@ -124,15 +130,23 @@ void opcontrol() {
 		// 							RopoDevice::flyWheel.currentVelocity, 
 		// 							RopoDevice::flyWheel.SumVoltage);
 
+		// RopoDevice::Debugger.Print("%.1f,%.1f\r\n",
+		// 							RopoDevice::turretModule.identifier.sweepOutput(),
+		// 							RopoDevice::turretModule.currentElecvateAngle);
+
 		// RopoDevice::Debugger.Print("%.1f,%.1f,%.1f\r\n",
 		// 							RopoDevice::turretModule.targetElecvateAngle,
 		// 							RopoDevice::turretModule.currentElecvateAngle, 
 		// 							RopoDevice::turretModule.elevateVoltage);
 
-		RopoDevice::Debugger.Print("%.1f,%.1f,%.1f\r\n",
-									RopoDevice::turretModule.targetDirectAngle * 400,
-									RopoDevice::turretModule.currentDirectAngle * 400, 
-									RopoDevice::turretModule.directVoltage);
+		// RopoDevice::Debugger.Print("%.1f,%.1f\r\n",
+		// 							RopoDevice::turretModule.identifier.sweepOutput(),
+		// 							RopoDevice::turretModule.currentDirectAngle);
+
+		// RopoDevice::Debugger.Print("%.1f,%.1f,%.1f\r\n",
+		// 							RopoDevice::turretModule.targetDirectAngle,
+		// 							RopoDevice::turretModule.currentDirectAngle, 
+		// 							RopoDevice::turretModule.directVoltage);
 
 		pros::delay(10);
 	}

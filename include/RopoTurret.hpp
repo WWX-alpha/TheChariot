@@ -16,14 +16,19 @@ namespace RopoTurret {
 		bool elevateStableFlag = false;
 		bool directStableFlag = false;
 
-		float elevateVoltage = 0.0f;
-		float directVoltage = 0.0f;
+		float elevateVoltage;
+		float directVoltage;
 
 		float currentElecvateAngle;
 		float targetElecvateAngle;
 
 		float currentDirectAngle;
 		float targetDirectAngle;
+
+		pros::Motor& directMotor;
+		pros::Motor& elevateMotor;
+
+		RopoControl::Identifier identifier = RopoControl::Identifier(10 * 1000, 0.5f, 10.0f, 6000.0f);
 
 		// TurretModule(pros::Motor &mtr0, pros::Motor &mtr1, const float* Range): 
 		// directMotor(mtr0), elevateMotor(mtr1), turretRange{Range[0], Range[1], Range[2], Range[3]}{ }
@@ -42,6 +47,8 @@ namespace RopoTurret {
 			targetElecvateAngle	(0.0f),
 			currentDirectAngle	(0.0f),
 			targetDirectAngle	(0.0f),
+			elevateVoltage		(0.0f),
+			directVoltage		(0.0f),
 			elevateRegulator(_elevateRegulator), 
 			directRegulator	(_directRegulator)
 		{
@@ -121,9 +128,6 @@ namespace RopoTurret {
 			currentDirectAngle = turretImu.get_yaw();
 		}
 
-		pros::Motor& directMotor;
-		pros::Motor& elevateMotor;
-
 	protected:
 		pros::Imu& turretImu;
 
@@ -150,8 +154,8 @@ namespace RopoTurret {
 					if(This->elevateStableFlag)
 					{
 						This->elevateVoltage = This->elevateRegulator->Update(This->targetElecvateAngle -This->currentElecvateAngle);
-						// This->elevateMotor.move_voltage(This->elevateVoltage);
 						voltage[2] = This->elevateVoltage;
+						// voltage[2] = This->identifier.sweepOutput();
 					}
 					else 
 					{
@@ -168,8 +172,8 @@ namespace RopoTurret {
 					if(This->directStableFlag)
 					{
 						This->directVoltage = This->directRegulator->Update(This->targetDirectAngle -This->currentDirectAngle);
-						// This->directMotor.move_voltage(-This->directVoltage);
 						voltage[1] = -This->directVoltage;
+						// voltage[1] = This->identifier.sweepOutput();
 					}
 					else 
 					{
