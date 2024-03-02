@@ -101,9 +101,13 @@ void opcontrol() {
 		dInput = - directionInput.GetAxisValue();
 		eInput =   elevationInput.GetAxisValue();
 
-		inputVelocity[1] = (fabs(xInput) < 0.08) ? (0) : (xInput  * RopoParameter::CHASSIS_X_SCALE);
-		inputVelocity[2] = (fabs(yInput) < 0.08) ? (0) : (yInput  * RopoParameter::CHASSIS_Y_SCALE);
-		inputVelocity[3] = (fabs(wInput) < 0.08) ? (0) : (wInput  * RopoParameter::CHASSIS_W_SCALE);
+		// inputVelocity[1] = (fabs(xInput) < 0.08) ? (0) : (xInput  * RopoParameter::CHASSIS_X_SCALE);
+		// inputVelocity[2] = (fabs(yInput) < 0.08) ? (0) : (yInput  * RopoParameter::CHASSIS_Y_SCALE);
+		// inputVelocity[3] = (fabs(wInput) < 0.08) ? (0) : (wInput  * RopoParameter::CHASSIS_W_SCALE);
+
+		inputVelocity[1] = (fabs(xInput) < 0.08) ? (0) : ((xInput-0.08)  * RopoParameter::CHASSIS_X_SCALE / 0.92);
+		inputVelocity[2] = (fabs(yInput) < 0.08) ? (0) : ((yInput-0.08)  * RopoParameter::CHASSIS_Y_SCALE / 0.92);
+		inputVelocity[3] = (fabs(wInput) < 0.08) ? (0) : ((wInput-0.08)  * RopoParameter::CHASSIS_W_SCALE / 0.92);
 
 		turretVelocity[1] = (fabs(dInput) < 0.08) ? (0) : (dInput  * RopoParameter::DIRECT_SCALE);
 		turretVelocity[2] = (fabs(eInput) < 0.08) ? (0) : (eInput  * RopoParameter::ELEVATE_SCALE);

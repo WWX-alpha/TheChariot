@@ -18,19 +18,21 @@ namespace RopoParameter {
 	static constexpr pros::motor_encoder_units_e_t ELEVATE_MOTOR_ENCODER = pros::E_MOTOR_ENCODER_DEGREES;
 	static constexpr pros::motor_encoder_units_e_t DIRECT_MOTOR_ENCODER = pros::E_MOTOR_ENCODER_DEGREES;
 
-	static constexpr int LEFT_FRONT_MOTOR_PORT[] 	= {5, 4};
-	static constexpr int LEFT_BACK_MOTOR_PORT[] 	= {1, 2};
-	static constexpr int RIGHT_BACK_MOTOR_PORT[] 	= {10, 9};
-	static constexpr int RIGHT_FRONT_MOTOR_PORT[] 	= {7, 6};
-	static constexpr int DIRECT_MOTOR_PORT[] 		= {16};
-	static constexpr int ELEVATE_MOTOR_PORT[] 		= {12};
-	static constexpr int FLY_WHEEL_MOTOR_PORT[] 	= {18};
-	static constexpr int TURRET_IMU_PORT[] 			= {11};
+	static constexpr int LEFT_FRONT_MOTOR_PORT[] 	= {18, 17};
+	static constexpr int LEFT_BACK_MOTOR_PORT[] 	= {10, 9};
+	static constexpr int RIGHT_BACK_MOTOR_PORT[] 	= {2, 1};
+	static constexpr int RIGHT_FRONT_MOTOR_PORT[] 	= {11, 12};
+	static constexpr int DIRECT_MOTOR_PORT[] 		= {14};
+	static constexpr int ELEVATE_MOTOR_PORT[] 		= {15};
+	static constexpr int FLY_WHEEL_MOTOR_PORT[] 	= {7};
+	static constexpr int TURRET_IMU_PORT[] 			= {5};
 	static constexpr int DEBUGGER_PORT[] 			= {8};
+
+	
 
 	// Chassis Shape Parameter
 	static constexpr float CHASSIS_WHEEL_ANGLE 		= (float)RopoMath::Pi / 3.0; 		// (rad)
-	static constexpr float CHASSIS_PARA_L 			= 181.89f / 1000.0f; 				// (m)
+	static constexpr float CHASSIS_PARA_L 			= 205.76f / 1000.0f; 				// (m)
 	static constexpr float CHASSIS_WHEEL_R 			= 3.25f * 25.4f / 2.0f / 1000.0f; 	// (m)
 	static constexpr float CHASSIS_WHEEL_GEAR_RATIO = 3.0f / 2.0f;
 	static constexpr float DIRECT_MOTOR_RATIO 		= 55.0f / 4.0f;
