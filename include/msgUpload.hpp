@@ -5,7 +5,7 @@
 #include "roposensor/Header.hpp"
 #include "pros/serial.hpp"
 
-struct Data{
+struct upData{
     int a;
     bool c;
     double b;
@@ -29,8 +29,8 @@ namespace RopoSensor{
             // msg update
             data.b = pros::millis();
             // data processing
-            RopoSensor::SafeObject<Data> safeMessage(data);
-            RopoSensor::UnionBuffer<RopoSensor::SafeObject<Data>> rawMessage(data);
+            RopoSensor::SafeObject<upData> safeMessage(data);
+            RopoSensor::UnionBuffer<RopoSensor::SafeObject<upData>> rawMessage(data);
             // sending message
             auto result = rawMessage.ToBuffer();
             tempBuffer[0] = 0xFC, tempBuffer[1] = 0xFD;
@@ -55,7 +55,7 @@ namespace RopoSensor{
     private:
         pros::Serial messageSender;
         uint8_t tempBuffer[1000];
-        Data data;
+        upData data;
         pros::Task *BackgroundTask;
     };
 }

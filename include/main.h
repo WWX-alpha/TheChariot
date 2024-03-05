@@ -79,5 +79,6 @@ void opcontrol(void);
 #endif
 
 #include "msgUpload.hpp"
+#include "msgDownload.hpp"
 
 #endif  // _PROS_MAIN_H_

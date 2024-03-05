@@ -127,7 +127,7 @@ void opcontrol() {
 		pros::lcd::print(3,"TR:%.1f %.1f %.1f %.1f %.1f",RopoDevice::turretModule.directPos, RopoDevice::turretModule.elevatePos, RopoDevice::turretModule.mode, RopoDevice::turretModule.directMotor.get_voltage(), RopoDevice::turretModule.elevateMotor.get_voltage());
 		pros::lcd::print(4,"EV:%.1f %.1f %.0f %.1f",RopoDevice::turretModule.targetElecvateAngle, RopoDevice::turretModule.currentElecvateAngle, (float)RopoDevice::turretModule.elevateStableFlag, RopoDevice::turretModule.elevateVoltage);
 		pros::lcd::print(5,"DC:%.1f %.1f %.0f %.1f",RopoDevice::turretModule.targetDirectAngle, RopoDevice::turretModule.currentDirectAngle, (float)RopoDevice::turretModule.directStableFlag, RopoDevice::turretModule.directVoltage);
-
+		pros::lcd::print(6,"%d %d %d",RopoDevice::Downloader.data.a,RopoDevice::Downloader.data.b,RopoDevice::Downloader.data.c);
 
 		// RopoDevice::Debugger.Print("%.1f,%.1f,%.1f\r\n",
 		// 							RopoDevice::flyWheel.targetVelocity, 

@@ -73,6 +73,7 @@ namespace RopoDevice {
 	// static RopoSensor::Debugger Debugger(RopoParameter::DEBUGGER_PORT[0],115200);
 
 	static RopoSensor::msgUploader Uploader(RopoParameter::UPLOAD_PORT[0], 115200);
+	static RopoSensor::msgDownloader Downloader(RopoParameter::DOWNLOAD_PORT[0], 115200);
 
 	void DeviceInit()
 	{
