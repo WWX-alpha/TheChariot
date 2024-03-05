@@ -6,5 +6,9 @@
 #include "SerialCore.hpp"
 #include "EncodingDisk.hpp"
 #include "Debugger.hpp"
+#include "UnionBuffer.hpp"
+#include "SafeObject.hpp"
+
+
 
 #endif //ROPO_SENSOR_HEADER_HPP

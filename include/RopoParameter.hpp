@@ -26,7 +26,9 @@ namespace RopoParameter {
 	static constexpr int ELEVATE_MOTOR_PORT[] 		= {15};
 	static constexpr int FLY_WHEEL_MOTOR_PORT[] 	= {7};
 	static constexpr int TURRET_IMU_PORT[] 			= {5};
-	static constexpr int DEBUGGER_PORT[] 			= {8};
+	// static constexpr int DEBUGGER_PORT[] 			= {8};
+	static constexpr int UPLOAD_PORT[] 				= {6};
+	static constexpr int DOWNLOAD_PORT[] 			= {4};
 
 	
 

@@ -78,4 +78,6 @@ void opcontrol(void);
 //#include <iostream>
 #endif
 
+#include "msgUpload.hpp"
+
 #endif  // _PROS_MAIN_H_

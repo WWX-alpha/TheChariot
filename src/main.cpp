@@ -152,6 +152,6 @@ void opcontrol() {
 		// 							RopoDevice::turretModule.currentDirectAngle, 
 		// 							RopoDevice::turretModule.directVoltage);
 
-		pros::delay(10);
+		pros::delay(5);
 	}
 }
