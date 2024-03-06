@@ -25,6 +25,8 @@ namespace RopoTurret {
 		float currentDirectAngle;
 		float targetDirectAngle;
 
+		bool yoloFindFlag = false;
+
 		pros::Motor& directMotor;
 		pros::Motor& elevateMotor;
 
@@ -155,6 +157,7 @@ namespace RopoTurret {
 					{
 						This->elevateVoltage = This->elevateRegulator->Update(This->targetElecvateAngle -This->currentElecvateAngle);
 						voltage[2] = This->elevateVoltage;
+						
 						// voltage[2] = This->identifier.sweepOutput();
 					}
 					else 
@@ -171,18 +174,29 @@ namespace RopoTurret {
 				{
 					if(This->directStableFlag)
 					{
-						This->directVoltage = This->directRegulator->Update(This->targetDirectAngle -This->currentDirectAngle);
-						voltage[1] = -This->directVoltage;
+						if(This->yoloFindFlag)
+						{
+							// This->directVoltage = This->directRegulator->Update(This->targetDirectAngle -This->currentDirectAngle);
+							This->directVoltage = This->directRegulator->Update(This->targetDirectAngle);
+							// This->directVoltage = 15 * This->targetDirectAngle;
+							voltage[1] = -This->directVoltage;
+						}
+						else
+						{
+							voltage[1] = 0;
+						}
 						// voltage[1] = This->identifier.sweepOutput();
 					}
 					else 
 					{
-						This->targetDirectAngle = This->turretImu.get_yaw();
+						// This->targetDirectAngle = This->turretImu.get_yaw();
+						// This->targetDirectAngle = 0;
 					}
 				}
 				else 
 				{
-					This->targetDirectAngle = This->turretImu.get_yaw();
+					// This->targetDirectAngle = This->turretImu.get_yaw();
+					// This->targetDirectAngle = 0;
 				}
 
 				if(This->directStableFlag || This->elevateStableFlag)

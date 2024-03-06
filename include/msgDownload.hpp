@@ -6,9 +6,10 @@
 #include "pros/serial.hpp"
 
 struct downData{
-    int16_t a;
-    int16_t b;
-    int16_t c;
+    int16_t width;
+    int16_t height;
+    int16_t midx;
+    int16_t find_flag;
 };
 
 namespace RopoSensor{
@@ -88,7 +89,6 @@ namespace RopoSensor{
                 }
                 This->data = rawMessage.ToObject().object;
                 // use data
-                
             }
         }
     };

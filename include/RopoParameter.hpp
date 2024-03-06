@@ -26,8 +26,8 @@ namespace RopoParameter {
 	static constexpr int ELEVATE_MOTOR_PORT[] 		= {15};
 	static constexpr int FLY_WHEEL_MOTOR_PORT[] 	= {7};
 	static constexpr int TURRET_IMU_PORT[] 			= {5};
-	// static constexpr int DEBUGGER_PORT[] 			= {8};
-	static constexpr int UPLOAD_PORT[] 				= {4};
+	static constexpr int DEBUGGER_PORT[] 			= {4};
+	static constexpr int UPLOAD_PORT[] 				= {3};
 	static constexpr int DOWNLOAD_PORT[] 			= {6};
 
 	
@@ -67,7 +67,8 @@ namespace RopoParameter {
 	RopoControl::PRegulator ElevateRegulator(750.0f, 12000, -12000);
 
 	// RopoControl::antiWindblowPIRegulator DirectRegulator(300.0f, 50.0f, 50.0f, 12000,-12000);
-	RopoControl::PIDRegulator DirectRegulator(750.0f, 50.0f, 20.0f, 12000,-12000);
+	// RopoControl::PIDRegulator DirectRegulator(750.0f, 50.0f, 20.0f, 12000,-12000);
+	RopoControl::PIDRegulator DirectRegulator(15.0f, 20.0f, 0.0f, 12000,-12000);
 };
 
 #endif // ROPO_PARAMETER_HPP
