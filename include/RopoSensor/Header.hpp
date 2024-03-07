@@ -8,7 +8,6 @@
 #include "Debugger.hpp"
 #include "UnionBuffer.hpp"
 #include "SafeObject.hpp"
-
-
+#include "RopoXDrivePosition.hpp"
 
 #endif //ROPO_SENSOR_HEADER_HPP

@@ -10,6 +10,9 @@ struct downData{
     int16_t height;
     int16_t midx;
     int16_t find_flag;
+    float roll;
+    float pitch;
+    float yaw;
 };
 
 namespace RopoSensor{

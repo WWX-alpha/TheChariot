@@ -6,9 +6,8 @@
 #include "pros/serial.hpp"
 
 struct upData{
-    int a;
-    bool c;
-    double b;
+    float odomXpos;
+    float odomYpos;
 };
 
 namespace RopoSensor{
@@ -16,18 +15,16 @@ namespace RopoSensor{
     {
     public:
         msgUploader(std::int8_t upLoaderPort, std::int32_t baudrate)
-         : messageSender(upLoaderPort, baudrate)
+         : messageSender(upLoaderPort, baudrate),
+        data({.odomXpos = 0.0, .odomYpos = 0.0})
         {
-            data = {.a = 1,
-                    .c = true,
-                    .b = 3.14};
             BackgroundTask = new pros::Task(BackgroundTaskFunction,this);
         }
 
         void Update()
         {
             // msg update
-            data.b = pros::millis();
+            
             // data processing
             RopoSensor::SafeObject<upData> safeMessage(data);
             RopoSensor::UnionBuffer<RopoSensor::SafeObject<upData>> rawMessage(data);
@@ -50,12 +47,12 @@ namespace RopoSensor{
                 pros::delay(10);
             }
         }
-        
 
+        upData data;
+    
     private:
         pros::Serial messageSender;
-        uint8_t tempBuffer[1000];
-        upData data;
+        uint8_t tempBuffer[1000];    
         pros::Task *BackgroundTask;
     };
 }
