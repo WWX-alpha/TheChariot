@@ -6,10 +6,10 @@
 #include "pros/serial.hpp"
 
 struct downData{
-    int16_t width;
-    int16_t height;
-    int16_t midx;
-    int16_t find_flag;
+    float errorX;
+    float errorY;
+    bool find_flag;
+    bool reset_flag;
     float roll;
     float pitch;
     float yaw;

@@ -64,7 +64,8 @@ namespace RopoParameter {
 	static constexpr char ShootPneumaticPort  = 'A';
 
 	RopoControl::antiWindblowPIRegulator FlywheelRegulator(0.25f, 5.0f, 5.0f, 12000,-12000);
-	RopoControl::PRegulator ElevateRegulator(750.0f, 12000, -12000);
+	// RopoControl::PRegulator ElevateRegulator(750.0f, 12000, -12000);
+	RopoControl::PIDRegulator ElevateRegulator(15.0f, 20.0f, 0.0f, 12000,-12000);
 
 	// RopoControl::antiWindblowPIRegulator DirectRegulator(300.0f, 50.0f, 50.0f, 12000,-12000);
 	// RopoControl::PIDRegulator DirectRegulator(750.0f, 50.0f, 20.0f, 12000,-12000);

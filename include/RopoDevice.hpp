@@ -75,7 +75,7 @@ namespace RopoDevice {
 	static RopoSensor::msgUploader Uploader(RopoParameter::UPLOAD_PORT[0], 115200);
 	static RopoSensor::msgDownloader Downloader(RopoParameter::DOWNLOAD_PORT[0], 115200);
 
-	static RopoXDrivePosition::XPositionModule xDrivePositionModule( leftFrontMotor1, leftBackMotor1, rightBackMotor1, rightFrontMotor1, turretImu );
+	static RopoXDrivePosition::XPositionModule xDrivePositionModule( leftFrontMotor1, leftBackMotor1, rightBackMotor1, rightFrontMotor1);
 
 	void DeviceInit()
 	{

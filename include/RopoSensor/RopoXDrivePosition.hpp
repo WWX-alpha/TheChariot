@@ -60,7 +60,7 @@ namespace RopoXDrivePosition {
         }
 
     public:   
-        XPositionModule( pros::Motor& _leftFrontMotor, pros::Motor& _leftBackMotor,pros::Motor& _rightBackMotor, pros::Motor& _rightFrontMotor, pros::IMU& _interial )
+        XPositionModule( pros::Motor& _leftFrontMotor, pros::Motor& _leftBackMotor,pros::Motor& _rightBackMotor, pros::Motor& _rightFrontMotor)
         : leftFrontMotor( _leftFrontMotor), rightFrontMotor( _rightFrontMotor), rightBackMotor( _rightBackMotor ), leftBackMotor( _leftBackMotor ),  
         posX(0), posY(0), last_LBEncoder(0), last_LFEncoder(0), last_RBEncoder(0), last_RFEncoder(0), sampleTime(10)
         {
@@ -85,7 +85,7 @@ namespace RopoXDrivePosition {
             posY = 0;
         }
         void updateYaw(float value){
-            angle = value;
+            angle = value * 180 / 3.14;
         }
 
         RopoMath::Vector<float> GetPosition()
