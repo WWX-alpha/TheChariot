@@ -26,7 +26,7 @@ namespace RopoTurret {
 		float targetDirectAngle;
 
 		bool yoloFindFlag = false;
-		bool resetFlag = false;
+		int modeFlag = 1; //0reset 1ready 2shoot
 
 		pros::Motor& directMotor;
 		pros::Motor& elevateMotor;
@@ -93,7 +93,7 @@ namespace RopoTurret {
 				mode = 2.0f;
 			}
 			directMotor .move_voltage(directVoltage);
-			elevateMotor.move_voltage(elevateVoltage);
+			// elevateMotor.move_voltage(elevateVoltage);
 		}
 
 		virtual void Update(){
@@ -109,12 +109,12 @@ namespace RopoTurret {
 			// 	turretRange[3] = 30.0f;
 			// }
 
-			if(directPos >= -160.0f && directPos <= -10.0f){
-				turretRange[2] = -10.0f;
-			}
-			else{
-				turretRange[2] = -25.0f;
-			}
+			// if(directPos >= -160.0f && directPos <= -10.0f){
+			// 	turretRange[2] = -10.0f;
+			// }
+			// else{
+			// 	turretRange[2] = -25.0f;
+			// }
 
 			currentElevateAngle = turretImu.get_pitch();
 			currentDirectAngle = turretImu.get_yaw();
@@ -139,10 +139,10 @@ namespace RopoTurret {
 			while(true){
 				This->Update();
 
-				if(This->resetFlag)
+				if(This->modeFlag == 0)
 				{
-					This->elevateStableFlag = false;
-					This->directStableFlag = false;
+					// This->elevateStableFlag = false;
+					// This->directStableFlag = false;
 					This->elevateRegulator->Reset();
 					This->directRegulator->Reset();
 				}
@@ -151,7 +151,7 @@ namespace RopoTurret {
 					if(This->elevateStableFlag) {
 						if(This->yoloFindFlag) {
 							This->elevateVoltage = This->elevateRegulator->Update(This->targetElevateAngle);
-							voltage[2] = -This->elevateVoltage;
+							voltage[2] = This->elevateVoltage;
 						}
 						else {
 							voltage[2] = 0;
@@ -171,15 +171,34 @@ namespace RopoTurret {
 					}
 				}
 				
-				if(This->directStableFlag || This->elevateStableFlag){
+				if((This->directStableFlag || This->elevateStableFlag) && This->modeFlag == 1){
 					This->MoveVoltage(voltage);
-				}
 
-				if(This->resetFlag){
-					This->directMotor.move_absolute(0,50);
-					This->elevateMotor.move_absolute(0,200);
+					float elevateOmega = 0.0;
+					if(This->elevatePos <= This->turretRange[2]){
+						elevateOmega = 50.0f;
+					}
+					else if(This->elevatePos >= This->turretRange[3]){
+						elevateOmega = -50.0f;
+					}
+					else{
+						elevateOmega   = ((This->targetElevateAngle < 0 && This->elevatePos >= This->turretRange[2]) 
+												|| (This->targetElevateAngle > 0 && This->elevatePos <= This->turretRange[3]))
+												?(This->targetElevateAngle *RopoParameter::ELEVATE_SCALE * RopoParameter::ELEVATE_MOTOR_RATIO / (6.0f)):(0);
+					}
+					This->elevateMotor.move_velocity(elevateOmega);
 				}
-				
+				else if(This->modeFlag == 0){
+					This->directMotor.move_absolute(0,50);
+					This->elevateMotor.move_absolute(0,50);
+				}
+				else{
+					voltage[1] = 0;
+					voltage[2] = 0;
+					This->MoveVoltage(voltage);
+
+					This->elevateMotor.move_velocity(0);
+				}
 				pros::delay(5);
 			}
 		}

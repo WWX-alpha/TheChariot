@@ -7,9 +7,11 @@
 
 struct downData{
     float errorX;
-    float errorY;
+    float elevate_order;
+    float speed_order;
     bool find_flag;
     bool reset_flag;
+    bool shoot_flag;
     float roll;
     float pitch;
     float yaw;

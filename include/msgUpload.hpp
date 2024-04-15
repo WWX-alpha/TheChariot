@@ -8,6 +8,9 @@
 struct upData{
     float odomXpos;
     float odomYpos;
+    float flyWheelSpeed;
+    float elevatePos;
+    float directPos;
 };
 
 namespace RopoSensor{

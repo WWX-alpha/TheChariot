@@ -38,7 +38,7 @@ void FlywheelValueDown()
 void FlywheelShoot()
 {
 	RopoDevice::ShootPneumatic.set_value(true);
-	pros::delay(50);
+	pros::delay(200);
 	RopoDevice::ShootPneumatic.set_value(false);
 }
 
@@ -51,11 +51,12 @@ void TurretTrackingSwitch()
 {
 	RopoDevice::turretModule.directStableFlag ^= 1;
 	RopoDevice::turretModule.elevateStableFlag ^= 1;
+	RopoDevice::flyWheel.flyWheelMode ^= 1;
 }
 
 void ResetTurret()
 {
-	RopoDevice::turretModule.resetFlag ^=1;
+	RopoDevice::turretModule.modeFlag = 0;
 }
 
 void opcontrol() {
@@ -80,7 +81,7 @@ void opcontrol() {
 	ButtonDetectLine1.AddButtonDetect(pros::E_CONTROLLER_DIGITAL_R1 , RopoController::Rising, FlywheelShoot);
 	ButtonDetectLine1.AddButtonDetect(pros::E_CONTROLLER_DIGITAL_X , RopoController::DoubleClick, FlywheelSwitch);
 	ButtonDetectLine1.AddButtonDetect(pros::E_CONTROLLER_DIGITAL_A , RopoController::DoubleClick, TurretTrackingSwitch);
-	ButtonDetectLine1.AddButtonDetect(pros::E_CONTROLLER_DIGITAL_Y , RopoController::DoubleClick, ResetTurret);
+	// ButtonDetectLine1.AddButtonDetect(pros::E_CONTROLLER_DIGITAL_Y , RopoController::DoubleClick, ResetTurret);
 	ButtonDetectLine1.Enable();
 
 	// RopoController::ButtonTaskLine ButtonDetectLine2(RopoDevice::partnerController);
@@ -93,7 +94,7 @@ void opcontrol() {
 	// ButtonDetectLine2.AddButtonDetect(pros::E_CONTROLLER_DIGITAL_B , RopoController::DoubleClick, DirectStableSwitch);
 	// ButtonDetectLine2.Enable();
 
-	okapi::EKFFilter vFilter(0.001, 0.04);
+	bool last_shoot_value = false;
 
 	while (true)
 	{
@@ -123,84 +124,71 @@ void opcontrol() {
 
 		odomPos = RopoDevice::xDrivePositionModule.GetPosition();
 
+		//data update
 		RopoDevice::turretModule.targetDirectAngle = RopoDevice::Downloader.data.errorX;
-		RopoDevice::turretModule.targetElevateAngle = RopoDevice::Downloader.data.errorY;
+		RopoDevice::turretModule.targetElevateAngle = RopoDevice::Downloader.data.elevate_order;
+		RopoDevice::flyWheel.targetVelocity = RopoDevice::Downloader.data.speed_order;
+		
 		RopoDevice::turretModule.yoloFindFlag = RopoDevice::Downloader.data.find_flag;
-		// RopoDevice::turretModule.resetFlag = RopoDevice::Downloader.data.reset_flag;
 
+		if(RopoDevice::Downloader.data.shoot_flag != last_shoot_value)
+		{
+			last_shoot_value = RopoDevice::Downloader.data.shoot_flag;
+			RopoDevice::turretModule.modeFlag = 2;
+			FlywheelShoot();
+		}
+		
+		if(RopoDevice::Downloader.data.reset_flag)
+		{
+			RopoDevice::turretModule.modeFlag = 0;
+		}
+		else
+		{
+			RopoDevice::turretModule.modeFlag = 1;
+		}
+
+		//data upload
 		RopoDevice::Uploader.data.odomXpos = RopoDevice::xDrivePositionModule.GetPosX();
 		RopoDevice::Uploader.data.odomYpos = RopoDevice::xDrivePositionModule.GetPosY();
+		RopoDevice::Uploader.data.flyWheelSpeed = RopoDevice::flyWheel.currentVelocity;
+		RopoDevice::Uploader.data.elevatePos = RopoDevice::turretModule.elevatePos;
+		RopoDevice::Uploader.data.directPos = RopoDevice::turretModule.directPos;
 		RopoDevice::xDrivePositionModule.updateYaw(RopoDevice::Downloader.data.yaw);
 
-		pros::lcd::print(1,"%.1f %.1f %.1f %.1f %.1f",
+		pros::lcd::print(1,"%.1f %.1f %.1f",
 						xInput,
 						yInput,
-						wInput,
-						dInput,
-						eInput);
+						wInput);
 		pros::lcd::print(2,"FW:%.1f %.1f %.0f %.1f",
 						RopoDevice::flyWheel.targetVelocity, 
 						RopoDevice::flyWheel.currentVelocity, 
 						(float)RopoDevice::flyWheel.flyWheelMode, 
 						RopoDevice::flyWheel.SumVoltage);
-		pros::lcd::print(3,"TR:%.1f %.1f %.1f %.1f %.1f",
+		pros::lcd::print(3,"TR:%.1f %.1f %d",
 						RopoDevice::turretModule.directPos, 
 						RopoDevice::turretModule.elevatePos, 
-						RopoDevice::turretModule.mode, 
-						RopoDevice::turretModule.directMotor.get_voltage(), 
-						RopoDevice::turretModule.elevateMotor.get_voltage());
-		pros::lcd::print(4,"EV:%.1f %.1f %.0f %.0f %.1f",
+						RopoDevice::turretModule.modeFlag);
+		pros::lcd::print(4,"EV:%.1f %.1f %.0f %.1f",
 						RopoDevice::turretModule.targetElevateAngle, 
 						RopoDevice::turretModule.currentElevateAngle, 
 						(float)RopoDevice::turretModule.elevateStableFlag, 
-						(float)RopoDevice::turretModule.resetFlag,
 						RopoDevice::turretModule.elevateVoltage);
-		pros::lcd::print(5,"DC:%.1f %.1f %.0f %.0f %.1f",
+		pros::lcd::print(5,"DC:%.1f %.1f %.0f %.1f",
 						RopoDevice::turretModule.targetDirectAngle, 
 						RopoDevice::turretModule.currentDirectAngle, 
 						(float)RopoDevice::turretModule.directStableFlag, 
-						(float)RopoDevice::turretModule.resetFlag,
 						RopoDevice::turretModule.directVoltage);
-		pros::lcd::print(6,"DL:%.1f %.1f %d %.1f %.1f %.1f",
+		pros::lcd::print(6,"DL:%.1f %.1f %.1f %d RE%d ST%d",
 						RopoDevice::Downloader.data.errorX,
-						RopoDevice::Downloader.data.errorY,
+						RopoDevice::Downloader.data.elevate_order,
+						RopoDevice::Downloader.data.speed_order,
 						RopoDevice::Downloader.data.find_flag,
-						RopoDevice::Downloader.data.roll,
-						RopoDevice::Downloader.data.pitch,
-						RopoDevice::Downloader.data.yaw);
+						RopoDevice::Downloader.data.reset_flag,
+						RopoDevice::Downloader.data.shoot_flag);
 		pros::lcd::print(7,"OD:%.2f %.2f %.2f",
 						odomPos[1], 
 						odomPos[2], 
 						odomPos[3]);
-
-		// RopoDevice::Debugger.Print("%.1f,%.1f,%.1f\r\n",
-		// 							RopoDevice::flyWheel.targetVelocity, 
-		// 							RopoDevice::flyWheel.currentVelocity, 
-		// 							RopoDevice::flyWheel.SumVoltage);
-
-		// RopoDevice::Debugger.Print("%.1f,%.1f\r\n",
-		// 							RopoDevice::turretModule.identifier.sweepOutput(),
-		// 							RopoDevice::turretModule.currentElecvateAngle);
-
-		// RopoDevice::Debugger.Print("%.1f,%.1f,%.1f\r\n",
-		// 							RopoDevice::turretModule.targetElecvateAngle,
-		// 							RopoDevice::turretModule.currentElecvateAngle, 
-		// 							RopoDevice::turretModule.elevateVoltage);
-
-		// RopoDevice::Debugger.Print("%.1f,%.1f\r\n",
-		// 							RopoDevice::turretModule.identifier.sweepOutput(),
-		// 							RopoDevice::turretModule.currentDirectAngle);
-
-		// RopoDevice::Debugger.Print("%.1f,%.1f,%.1f\r\n",
-		// 							RopoDevice::turretModule.targetDirectAngle,
-		// 							RopoDevice::turretModule.currentDirectAngle, 
-		// 							RopoDevice::turretModule.directVoltage);
-
-		// RopoDevice::Debugger.Print("%.1f,%.1f,%.1f,%d\r\n",
-		// 							RopoDevice::turretModule.targetDirectAngle,
-		// 							RopoDevice::turretModule.currentDirectAngle, 
-		// 							RopoDevice::turretModule.directVoltage,
-		// 							RopoDevice::Downloader.data.midx);
 
 		pros::delay(5);
 	}
