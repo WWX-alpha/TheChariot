@@ -15,6 +15,7 @@ void autonomous() {}
 
 float FlyWheelSpeed = RopoParameter::initFlyWheelSpeed;
 bool flyWheelMode = RopoParameter::initFlyWheelMode;
+bool manualReset = false;
 
 void FlywheelValueUp()
 {
@@ -56,16 +57,13 @@ void TurretTrackingSwitch()
 
 void ResetTurret()
 {
-	RopoDevice::turretModule.modeFlag = 0;
+	manualReset ^= 1;
 }
 
 void opcontrol() {
 	RopoController::AxisValueCast xVelocityInput(RopoDevice::masterController, pros::E_CONTROLLER_ANALOG_LEFT_Y , RopoController::Exp);
 	RopoController::AxisValueCast yVelocityInput(RopoDevice::masterController, pros::E_CONTROLLER_ANALOG_LEFT_X , RopoController::Exp);
 	RopoController::AxisValueCast wVelocityInput(RopoDevice::masterController, pros::E_CONTROLLER_ANALOG_RIGHT_X, RopoController::Exp);
-
-	// RopoController::AxisValueCast directionInput(RopoDevice::partnerController, pros::E_CONTROLLER_ANALOG_LEFT_X , RopoController::Exp);
-	// RopoController::AxisValueCast elevationInput(RopoDevice::partnerController, pros::E_CONTROLLER_ANALOG_LEFT_Y , RopoController::Exp);
 
 	float xInput, yInput, wInput, dInput, eInput;
 
@@ -81,18 +79,8 @@ void opcontrol() {
 	ButtonDetectLine1.AddButtonDetect(pros::E_CONTROLLER_DIGITAL_R1 , RopoController::Rising, FlywheelShoot);
 	ButtonDetectLine1.AddButtonDetect(pros::E_CONTROLLER_DIGITAL_X , RopoController::DoubleClick, FlywheelSwitch);
 	ButtonDetectLine1.AddButtonDetect(pros::E_CONTROLLER_DIGITAL_A , RopoController::DoubleClick, TurretTrackingSwitch);
-	// ButtonDetectLine1.AddButtonDetect(pros::E_CONTROLLER_DIGITAL_Y , RopoController::DoubleClick, ResetTurret);
+	ButtonDetectLine1.AddButtonDetect(pros::E_CONTROLLER_DIGITAL_Y , RopoController::DoubleClick, ResetTurret);
 	ButtonDetectLine1.Enable();
-
-	// RopoController::ButtonTaskLine ButtonDetectLine2(RopoDevice::partnerController);
-	// RopoDevice::partnerController.clear();
-	// ButtonDetectLine2.AddButtonDetect(pros::E_CONTROLLER_DIGITAL_UP , RopoController::Rising, FlywheelValueUp);
-	// ButtonDetectLine2.AddButtonDetect(pros::E_CONTROLLER_DIGITAL_DOWN , RopoController::Rising, FlywheelValueDown);
-	// ButtonDetectLine2.AddButtonDetect(pros::E_CONTROLLER_DIGITAL_R1 , RopoController::Rising, FlywheelShoot);
-	// ButtonDetectLine2.AddButtonDetect(pros::E_CONTROLLER_DIGITAL_X , RopoController::DoubleClick, FlywheelSwitch);
-	// ButtonDetectLine2.AddButtonDetect(pros::E_CONTROLLER_DIGITAL_A , RopoController::DoubleClick, ElevateStableSwitch);
-	// ButtonDetectLine2.AddButtonDetect(pros::E_CONTROLLER_DIGITAL_B , RopoController::DoubleClick, DirectStableSwitch);
-	// ButtonDetectLine2.Enable();
 
 	bool last_shoot_value = false;
 
@@ -102,33 +90,18 @@ void opcontrol() {
 		yInput = - yVelocityInput.GetAxisValue();
 		wInput = - wVelocityInput.GetAxisValue();
 
-		// dInput = - directionInput.GetAxisValue();
-		// eInput =   elevationInput.GetAxisValue();
-
 		inputVelocity[1] = (fabs(xInput) < 0.08) ? (0) : ((xInput-0.08)  * RopoParameter::CHASSIS_X_SCALE / 0.92);
 		inputVelocity[2] = (fabs(yInput) < 0.08) ? (0) : ((yInput-0.08)  * RopoParameter::CHASSIS_Y_SCALE / 0.92);
 		inputVelocity[3] = (fabs(wInput) < 0.08) ? (0) : ((wInput-0.08)  * RopoParameter::CHASSIS_W_SCALE / 0.92);
 
-		// turretVelocity[1] = (fabs(dInput) < 0.08) ? (0) : (dInput  * RopoParameter::DIRECT_SCALE);
-		// turretVelocity[2] = (fabs(eInput) < 0.08) ? (0) : (eInput  * RopoParameter::ELEVATE_SCALE);
-
 		RopoDevice::chassisModule.MoveVelocity(inputVelocity);
-
-		// if(turretVelocity[1] !=0 || turretVelocity[2] !=0)
-		// {
-		// 	RopoDevice::turretModule.elevateStableFlag = false;
-		// 	RopoDevice::turretModule.directStableFlag = false;
-		// }
-		// RopoDevice::turretModule.MoveVelocity(turretVelocity);
-		// RopoDevice::turretModule.MoveVoltage(turretVelocity);
 
 		odomPos = RopoDevice::xDrivePositionModule.GetPosition();
 
 		//data update
 		RopoDevice::turretModule.targetDirectAngle = RopoDevice::Downloader.data.errorX;
 		RopoDevice::turretModule.targetElevateAngle = RopoDevice::Downloader.data.elevate_order;
-		RopoDevice::flyWheel.targetVelocity = RopoDevice::Downloader.data.speed_order;
-		
+		// RopoDevice::flyWheel.targetVelocity = RopoDevice::Downloader.data.speed_order;
 		RopoDevice::turretModule.yoloFindFlag = RopoDevice::Downloader.data.find_flag;
 
 		if(RopoDevice::Downloader.data.shoot_flag != last_shoot_value)
@@ -145,6 +118,10 @@ void opcontrol() {
 		else
 		{
 			RopoDevice::turretModule.modeFlag = 1;
+		}
+
+		if(manualReset){
+			RopoDevice::turretModule.modeFlag = 0;
 		}
 
 		//data upload
@@ -189,6 +166,9 @@ void opcontrol() {
 						odomPos[1], 
 						odomPos[2], 
 						odomPos[3]);
+
+		RopoDevice::Debugger.Print("%f,%f\r\n",RopoDevice::flyWheel.targetVelocity, 
+										   	   RopoDevice::flyWheel.currentVelocity);
 
 		pros::delay(5);
 	}

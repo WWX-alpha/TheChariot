@@ -8,6 +8,9 @@
 namespace RopoTurret {
 	class TurretModule {
 	public:
+		pros::Motor& directMotor;
+		pros::Motor& elevateMotor;
+
 		float directPos = 0;
 		float elevatePos = 0;
 
@@ -28,10 +31,7 @@ namespace RopoTurret {
 		bool yoloFindFlag = false;
 		int modeFlag = 1; //0reset 1ready 2shoot
 
-		pros::Motor& directMotor;
-		pros::Motor& elevateMotor;
-
-		RopoControl::Identifier identifier = RopoControl::Identifier(10 * 1000, 0.5f, 10.0f, 6000.0f);
+		// RopoControl::Identifier identifier = RopoControl::Identifier(10 * 1000, 0.5f, 10.0f, 6000.0f);
 
 		// TurretModule(pros::Motor &mtr0, pros::Motor &mtr1, const float* Range): 
 		// directMotor(mtr0), elevateMotor(mtr1), turretRange{Range[0], Range[1], Range[2], Range[3]}{ }
@@ -44,14 +44,17 @@ namespace RopoTurret {
 					RopoControl::Regulator *_directRegulator = nullptr): 
 			directMotor	(mtr0),
 			elevateMotor(mtr1),
-			turretRange{Range[0], Range[1], Range[2], Range[3]},
-			turretImu	(imu0),
-			currentElevateAngle(0.0f),
+			directPos(0.0f), elevatePos(0.0f), mode(0.0f),
+			elevateStableFlag(false), directStableFlag(false),
+			elevateVoltage		(0.0f),
+			directVoltage		(0.0f),
+			currentElevateAngle (0.0f),
 			targetElevateAngle	(0.0f),
 			currentDirectAngle	(0.0f),
 			targetDirectAngle	(0.0f),
-			elevateVoltage		(0.0f),
-			directVoltage		(0.0f),
+			yoloFindFlag(false), modeFlag(1),
+			turretImu	(imu0),
+			turretRange{Range[0], Range[1], Range[2], Range[3]},
 			elevateRegulator(_elevateRegulator), 
 			directRegulator	(_directRegulator)
 		{
@@ -93,7 +96,7 @@ namespace RopoTurret {
 				mode = 2.0f;
 			}
 			directMotor .move_voltage(directVoltage);
-			// elevateMotor.move_voltage(elevateVoltage);
+			elevateMotor.move_voltage(elevateVoltage);
 		}
 
 		virtual void Update(){
@@ -150,7 +153,7 @@ namespace RopoTurret {
 				if(This->elevateRegulator != nullptr) {
 					if(This->elevateStableFlag) {
 						if(This->yoloFindFlag) {
-							This->elevateVoltage = This->elevateRegulator->Update(This->targetElevateAngle);
+							This->elevateVoltage = This->elevateRegulator->Update(This->targetElevateAngle - This->elevatePos);
 							voltage[2] = This->elevateVoltage;
 						}
 						else {
@@ -171,33 +174,34 @@ namespace RopoTurret {
 					}
 				}
 				
-				if((This->directStableFlag || This->elevateStableFlag) && This->modeFlag == 1){
+				if((This->directStableFlag || This->elevateStableFlag) && (This->modeFlag == 1 || This->modeFlag == 2)){
 					This->MoveVoltage(voltage);
 
-					float elevateOmega = 0.0;
-					if(This->elevatePos <= This->turretRange[2]){
-						elevateOmega = 50.0f;
-					}
-					else if(This->elevatePos >= This->turretRange[3]){
-						elevateOmega = -50.0f;
-					}
-					else{
-						elevateOmega   = ((This->targetElevateAngle < 0 && This->elevatePos >= This->turretRange[2]) 
-												|| (This->targetElevateAngle > 0 && This->elevatePos <= This->turretRange[3]))
-												?(This->targetElevateAngle *RopoParameter::ELEVATE_SCALE * RopoParameter::ELEVATE_MOTOR_RATIO / (6.0f)):(0);
-					}
-					This->elevateMotor.move_velocity(elevateOmega);
+					// float elevateOmega = 0.0;
+					// if(This->elevatePos <= This->turretRange[2]){
+					// 	elevateOmega = 50.0f;
+					// }
+					// else if(This->elevatePos >= This->turretRange[3]){
+					// 	elevateOmega = -50.0f;
+					// }
+					// else{
+					// 	elevateOmega   = ((This->targetElevateAngle < 0 && This->elevatePos >= This->turretRange[2]) 
+					// 							|| (This->targetElevateAngle > 0 && This->elevatePos <= This->turretRange[3]))
+					// 							?(This->targetElevateAngle *RopoParameter::ELEVATE_SCALE * RopoParameter::ELEVATE_MOTOR_RATIO / (6.0f)):(0);
+					// }
+					// This->elevateMotor.move_velocity(elevateOmega);
 				}
 				else if(This->modeFlag == 0){
 					This->directMotor.move_absolute(0,50);
 					This->elevateMotor.move_absolute(0,50);
 				}
 				else{
-					voltage[1] = 0;
-					voltage[2] = 0;
-					This->MoveVoltage(voltage);
+					// voltage[1] = 0;
+					// voltage[2] = 0;
+					// This->MoveVoltage(voltage);
 
-					This->elevateMotor.move_velocity(0);
+					This->directMotor.move_absolute(0,50);
+					This->elevateMotor.move_absolute(0,50);
 				}
 				pros::delay(5);
 			}
